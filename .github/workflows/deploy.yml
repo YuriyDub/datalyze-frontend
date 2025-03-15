@@ -3,7 +3,7 @@ name: Deploy Frontend to EC2
 on:
   push:
     branches:
-      - main  # Trigger deployment on push to the main branch
+      - main # Trigger deployment on push to the main branch
 
 jobs:
   deploy:
@@ -26,16 +26,16 @@ jobs:
         with:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
-          REMOTE_USER: ${{ secrets.EC2_USER }}
-          SOURCE: "build/"  # Path to the built frontend files
-          TARGET: "~/repos/datalyze-frontend"  # Target directory on EC2
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          SOURCE: 'build/' # Path to the built frontend files
+          TARGET: '~/repos/datalyze-frontend' # Target directory on EC2
 
       # Step 4: Restart Nginx (if needed)
       - name: Restart Nginx
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo systemctl restart nginx
