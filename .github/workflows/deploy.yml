@@ -28,7 +28,7 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
           SOURCE: "build/"  # Path to the built frontend files
-          TARGET: "home/ubuntu/repos/datalyze-frontend"  # Target directory on EC2
+          TARGET: "~/repos/datalyze-frontend"  # Target directory on EC2
 
       # Step 4: Restart Nginx (if needed)
       - name: Restart Nginx
