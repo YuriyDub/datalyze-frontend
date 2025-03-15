@@ -1,38 +1,41 @@
-name: Deploy Frontend
+name: Deploy Frontend to EC2
 
 on:
   push:
     branches:
-      - main  # Змініть на вашу гілку
+      - main  # Trigger deployment on push to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
+      # Step 2: Install dependencies and build frontend
+      - name: Install and Build Frontend
         run: |
           npm install
-
-      - name: Build Frontend
-        run: |
           npm run build
 
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.10
+      # Step 3: Deploy frontend using rsync over SSH
+      - name: Deploy Frontend
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USER }}
+          SOURCE: "build/"  # Path to the built frontend files
+          TARGET: "~/repos/datalyze-frontend"  # Target directory on EC2
+
+      # Step 4: Restart Nginx (if needed)
+      - name: Restart Nginx
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /var/www/your-frontend
-            sudo rm -rf *
-            sudo cp -r /home/ec2-user/your-frontend-repo/* .
+            sudo systemctl restart nginx
