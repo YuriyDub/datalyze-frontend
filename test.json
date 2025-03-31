@@ -1,0 +1,52 @@
+{
+  "users": [
+    {
+      "user_id": 101,
+      "username": "alice",
+      "preferences": {
+        "theme": "dark",
+        "notifications": true
+      },
+      "last_login": "2023-05-10T08:30:00Z"
+    },
+    {
+      "user_id": 102,
+      "username": "bob",
+      "preferences": {
+        "theme": "light",
+        "notifications": false
+      },
+      "last_login": "2023-05-09T14:15:00Z"
+    }
+  ],
+  "products": [
+    {
+      "product_id": "P1001",
+      "name": "Wireless Mouse",
+      "price": 29.99,
+      "in_stock": true,
+      "tags": ["electronics", "accessories"]
+    },
+    {
+      "product_id": "P1002",
+      "name": "Mechanical Keyboard",
+      "price": 99.99,
+      "in_stock": false,
+      "tags": ["electronics", "premium"]
+    }
+  ],
+  "orders": [
+    {
+      "order_id": "ORD-2023-001",
+      "user_id": 101,
+      "items": [
+        {
+          "product_id": "P1001",
+          "quantity": 2
+        }
+      ],
+      "total": 59.98,
+      "status": "completed"
+    }
+  ]
+}
