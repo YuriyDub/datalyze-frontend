@@ -1,4 +1,15 @@
 import { useState, useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/use-auth';
+import {
+  jsonToSqlite,
+  csvToSqlite,
+  uploadSqlite,
+  clearTempFiles,
+  IColumnDefinition as ApiColumnDefinition,
+  IJsonToSqliteOptions,
+  ICsvToSqliteOptions,
+} from '@/services/api/data';
 import {
   Dialog,
   DialogContent,
@@ -25,8 +36,27 @@ import { TableView } from './TableView';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PencilLine } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 
 export type DataType = 'string' | 'number' | 'boolean' | 'date';
+
+// Map frontend data types to SQLite types
+const mapDataTypeToSqliteType = (
+  dataType: DataType,
+): 'TEXT' | 'INTEGER' | 'REAL' | 'BLOB' | 'NULL' => {
+  switch (dataType) {
+    case 'string':
+      return 'TEXT';
+    case 'number':
+      return 'INTEGER';
+    case 'boolean':
+      return 'INTEGER';
+    case 'date':
+      return 'TEXT';
+    default:
+      return 'TEXT';
+  }
+};
 
 export interface ColumnDefinition {
   name: string;
@@ -48,6 +78,7 @@ enum Steps {
   Upload,
   Configure,
   Review,
+  Processing,
 }
 
 const steps = [
@@ -56,6 +87,7 @@ const steps = [
   { id: Steps.Upload, label: 'Upload', description: 'Select your file' },
   { id: Steps.Configure, label: 'Configure', description: 'Set up structure' },
   { id: Steps.Review, label: 'Review', description: 'Confirm import' },
+  { id: Steps.Processing, label: 'Processing', description: 'Converting data' },
 ];
 
 export function DataUploadDialog({
@@ -68,6 +100,7 @@ export function DataUploadDialog({
   const [activeStep, setActiveStep] = useState(Steps.Name);
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
   const [csvHasHeaders, setCsvHasHeaders] = useState(true);
   const [tables, setTables] = useState<TableDefinition[]>([]);
   const [dataSourceType, setDataSourceType] = useState<DataSourceType | ''>('');
@@ -75,6 +108,12 @@ export function DataUploadDialog({
   const [columnNames, setColumnNames] = useState<string[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   useEffect(() => {
     if (open) {
@@ -204,16 +243,7 @@ export function DataUploadDialog({
           setTables(tables);
         }
       } else if (dataSourceType === 'sqlite') {
-        setTables([
-          {
-            name: 'sqlite_table',
-            columns: [
-              { name: 'id', type: 'number' },
-              { name: 'name', type: 'string' },
-              { name: 'is_active', type: 'boolean' },
-            ],
-          },
-        ]);
+        setActiveStep(Steps.Review);
       }
     } catch (err) {
       setError(`Error processing file: ${err instanceof Error ? err.message : String(err)}`);
@@ -240,9 +270,88 @@ export function DataUploadDialog({
     setTables(updatedTables);
   };
 
-  const handleSubmit = () => {
-    console.log('Submitting data with tables:', tables);
-    onOpenChange(false);
+  const convertColumnDefinitions = useCallback(
+    (tableIndex: number): ApiColumnDefinition[] => {
+      return tables[tableIndex].columns.map((col) => ({
+        name: col.name,
+        type: mapDataTypeToSqliteType(col.type),
+        primaryKey: col.name.toLowerCase() === 'id',
+      }));
+    },
+    [tables],
+  );
+
+  const handleSubmit = async () => {
+    if (!file) {
+      setError('Missing file');
+      return;
+    } else if (!isAuthenticated) {
+      setError('Not authenticated');
+    }
+
+    setIsLoading(true);
+    setActiveStep(Steps.Processing);
+    setError(null);
+
+    try {
+      let result;
+
+      if (dataSourceType === 'json') {
+        const options: IJsonToSqliteOptions = {
+          inferTypes: false,
+          tables: tables.map((table) => ({
+            name: table.name,
+            columns: table.columns.map((col) => ({
+              name: col.name,
+              type: mapDataTypeToSqliteType(col.type),
+              primaryKey: col.name.toLowerCase() === 'id',
+            })),
+          })),
+        };
+
+        result = await jsonToSqlite(file, options);
+      } else if (dataSourceType === 'csv') {
+        const options: ICsvToSqliteOptions = {
+          tableName: tables[0].name,
+          columns: convertColumnDefinitions(0),
+        };
+
+        result = await csvToSqlite(file, options);
+      } else if (dataSourceType === 'sqlite') {
+        // Upload SQLite file directly
+        result = await uploadSqlite(file);
+      } else {
+        throw new Error('Unsupported file type');
+      }
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        toast.success('Data successfully uploaded');
+
+        try {
+          await clearTempFiles();
+        } catch (clearError) {
+          console.error('Error clearing temporary files:', clearError);
+        }
+
+        setTimeout(() => {
+          setDataName('');
+          setActiveStep(Steps.Name);
+          setColumnNames([]);
+          setFile(null);
+          setTables([]);
+          setCsvHasHeaders(false);
+          setDataSourceType('');
+          onOpenChange(false);
+        }, 2000);
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -344,7 +453,10 @@ export function DataUploadDialog({
                         <CardHeader>
                           <CardTitle className="flex items-center justify-between gap-1">
                             {table.name}
-                            <Toggle variant="outline" onClick={() => setIsEditing((flag) => !flag)}>
+                            <Toggle
+                              variant="outline"
+                              pressed={isEditing}
+                              onClick={() => setIsEditing((flag) => !flag)}>
                               <PencilLine />
                             </Toggle>
                           </CardTitle>
@@ -369,6 +481,17 @@ export function DataUploadDialog({
             </div>
           )}
 
+          {activeStep === Steps.Processing && (
+            <>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center">
+                  <LoadingSpinner />
+                  <p className="text-center">Processing your data</p>
+                </div>
+              ) : null}
+            </>
+          )}
+
           {activeStep === Steps.Review && (
             <div className="space-y-6">
               <div className="space-y-2">
@@ -376,11 +499,11 @@ export function DataUploadDialog({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
-                    <p>{dataSourceType}</p>
+                    <p className="text-sm">{dataSourceType}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">File Name</p>
-                    <p>{file?.name}</p>
+                    <p className="text-sm">{file?.name}</p>
                   </div>
                   {dataSourceType === 'csv' && (
                     <div>
@@ -390,22 +513,25 @@ export function DataUploadDialog({
                   )}
                 </div>
               </div>
-
-              <Label className="mb-2">Data Structure</Label>
-              <div className="space-y-2 max-h-56 overflow-auto">
-                {tables.map((table, index) => (
-                  <Card key={index} className="p-4 gap-2">
-                    <CardTitle className="text-lg">{table.name}</CardTitle>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {table.columns.map((col, colIndex) => (
-                        <Badge key={colIndex} variant="secondary">
-                          {col.name} ({col.type})
-                        </Badge>
-                      ))}
-                    </div>
-                  </Card>
-                ))}
-              </div>
+              {dataSourceType === 'sqlite' ? null : (
+                <>
+                  <Label className="mb-2">Data Structure</Label>
+                  <div className="space-y-2 max-h-56 overflow-auto">
+                    {tables.map((table, index) => (
+                      <Card key={index} className="p-4 gap-2">
+                        <CardTitle className="text-lg">{table.name}</CardTitle>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {table.columns.map((col, colIndex) => (
+                            <Badge key={colIndex} variant="secondary">
+                              {col.name} ({col.type})
+                            </Badge>
+                          ))}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
@@ -422,12 +548,18 @@ export function DataUploadDialog({
               Back
             </Button>
           )}
-          {activeStep < 3 ? (
+          {activeStep < Steps.Review ? (
             <Button onClick={handleNext} disabled={isLoading}>
               {isLoading ? 'Processing...' : 'Next'}
             </Button>
+          ) : activeStep === Steps.Review ? (
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              Import Data
+            </Button>
           ) : (
-            <Button onClick={handleSubmit}>Import Data</Button>
+            <Button onClick={() => onOpenChange(false)} disabled={isLoading}>
+              Close
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

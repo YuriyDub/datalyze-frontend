@@ -65,7 +65,7 @@ export const TableView = ({
                   </SelectContent>
                 </Select>
               ) : (
-                <Badge variant="outline">{column.originalType}</Badge>
+                <Badge variant="outline">{column.type}</Badge>
               )}
             </TableCell>
           </TableRow>
