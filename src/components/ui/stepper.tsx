@@ -60,9 +60,9 @@ export function Stepper({
               <div
                 className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-200 text-sm font-medium',
-                  isActive && 'border-primary bg-primary text-white',
+                  isActive && 'border-primary bg-primary text-white animate-bounce',
                   isCompleted && 'border-primary bg-primary text-white',
-                  isDisabled && 'border-gray-200 text-gray-400',
+                  isDisabled && 'border-gray-200 text-gray-400 animate-pulse',
                   activeStepClassName,
                   completedStepClassName,
                   disabledStepClassName,

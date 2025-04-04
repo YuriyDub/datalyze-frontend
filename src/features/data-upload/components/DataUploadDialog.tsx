@@ -37,6 +37,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PencilLine } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { renameFile } from '../utils';
 
 export type DataType = 'string' | 'number' | 'boolean' | 'date';
 
@@ -292,6 +293,7 @@ export function DataUploadDialog({
     setIsLoading(true);
     setActiveStep(Steps.Processing);
     setError(null);
+    const renamedFile = renameFile(file, dataName);
 
     try {
       let result;
@@ -309,17 +311,16 @@ export function DataUploadDialog({
           })),
         };
 
-        result = await jsonToSqlite(file, options);
+        result = await jsonToSqlite(renamedFile, options, dataName);
       } else if (dataSourceType === 'csv') {
         const options: ICsvToSqliteOptions = {
           tableName: tables[0].name,
           columns: convertColumnDefinitions(0),
         };
 
-        result = await csvToSqlite(file, options);
+        result = await csvToSqlite(renamedFile, options, dataName);
       } else if (dataSourceType === 'sqlite') {
-        // Upload SQLite file directly
-        result = await uploadSqlite(file);
+        result = await uploadSqlite(renamedFile, dataName);
       } else {
         throw new Error('Unsupported file type');
       }

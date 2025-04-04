@@ -7,6 +7,8 @@ import {
   IJsonToSqliteOptions,
   ICsvToSqliteOptions,
   IUploadResponse,
+  IDatasetInfo,
+  IDataset,
 } from './types';
 
 interface ApiErrorResponse {
@@ -19,6 +21,8 @@ export type {
   IJsonToSqliteOptions,
   ICsvToSqliteOptions,
   IUploadResponse,
+  IDatasetInfo,
+  IDataset,
 };
 
 export const dataApi = mainApi.injectEndpoints({
@@ -103,12 +107,16 @@ export const uploadDataset = async (formData: FormData): Promise<IUploadResponse
 export const jsonToSqlite = async (
   file: File,
   options?: IJsonToSqliteOptions,
+  name?: string,
 ): Promise<IUploadResponse> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
     if (options) {
       formData.append('options', JSON.stringify(options));
+    }
+    if (name) {
+      formData.append('name', name);
     }
     const response = await api.post('/files/json-to-sqlite', formData);
     return response.data;
@@ -124,11 +132,15 @@ export const jsonToSqlite = async (
 export const csvToSqlite = async (
   file: File,
   options: ICsvToSqliteOptions,
+  name?: string,
 ): Promise<IUploadResponse> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('options', JSON.stringify(options));
+    if (name) {
+      formData.append('name', name);
+    }
     const response = await api.post('/files/csv-to-sqlite', formData);
     return response.data;
   } catch (error) {
@@ -140,10 +152,13 @@ export const csvToSqlite = async (
   }
 };
 
-export const uploadSqlite = async (file: File): Promise<IUploadResponse> => {
+export const uploadSqlite = async (file: File, name?: string): Promise<IUploadResponse> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
+    if (name) {
+      formData.append('name', name);
+    }
     const response = await api.post('/files/upload-sqlite', formData);
     return response.data;
   } catch (error) {
@@ -164,5 +179,49 @@ export const getPrivateUrl = async (fileKey: string): Promise<string> => {
   } catch (error) {
     const axiosError = error as AxiosError;
     throw new Error(`Failed to get private URL: ${axiosError.message || 'Unknown error'}`);
+  }
+};
+
+export const getUserDatasets = async (): Promise<IDatasetInfo[]> => {
+  try {
+    const response = await api.get('/files/datasets');
+    return response.data.datasets;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    console.error('Failed to get user datasets:', axiosError);
+    return [];
+  }
+};
+
+export const deleteDataset = async (id: string): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await api.delete(`/files/datasets/${id}`);
+    return {
+      success: true,
+      message: response.data.message || 'Dataset deleted successfully'
+    };
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+    return {
+      success: false,
+      message: axiosError.response?.data?.error || 'Failed to delete dataset'
+    };
+  }
+};
+
+export const renameDataset = async (id: string, newName: string): Promise<{ success: boolean; message: string; key?: string }> => {
+  try {
+    const response = await api.put(`/files/datasets/${id}/rename`, { newName });
+    return {
+      success: true,
+      message: response.data.message || 'Dataset renamed successfully',
+      key: response.data.key
+    };
+  } catch (error) {
+    const axiosError = error as AxiosError<ApiErrorResponse>;
+    return {
+      success: false,
+      message: axiosError.response?.data?.error || 'Failed to rename dataset'
+    };
   }
 };

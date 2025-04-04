@@ -27,4 +27,24 @@ export interface IUploadResponse {
   url?: string;
   message?: string;
   error?: string;
+  dataset?: IDataset;
+}
+
+export interface IDatasetInfo {
+  id: string;
+  name: string;
+  fileKey: string;
+  fileSize: number;
+  createdAt: Date;
+  fileType: string;
+}
+
+export interface IDataset {
+  id: string;
+  name: string;
+  file_key: string;
+  user_id: string;
+  created_at: Date;
+  file_type: string;
+  file_size: number;
 }
