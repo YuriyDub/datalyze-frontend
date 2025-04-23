@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { PublicRoute } from './PublicRoute';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import DataPage from '@/pages/DataPage/DataPage';
+import ChatPage from '@/pages/ChatPage/ChatPage';
+import ChatDetail from '@/pages/ChatDetail/ChatDetail';
 import Home from '@/pages/Home/Home';
 
 export const AppRoutes = () => {
@@ -31,6 +33,8 @@ export const AppRoutes = () => {
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/" element={<Home />} />
           <Route path="/your-data" element={<DataPage />} />
+          <Route path="/chats" element={<ChatPage />} />
+          <Route path="/chats/:id" element={<ChatDetail />} />
         </Route>
 
         {/* Fallback Route */}

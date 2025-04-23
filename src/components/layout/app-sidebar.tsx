@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Database, Folders, Home } from 'lucide-react';
+import { Database, Home, MessageSquare } from 'lucide-react';
 
 import {
   Sidebar,
@@ -28,24 +28,9 @@ const data = {
       icon: Database,
     },
     {
-      isCollapsible: true,
-      title: 'Projects',
-      url: '/projects',
-      icon: Folders,
-      items: [
-        {
-          title: 'Genesis',
-          url: '#',
-        },
-        {
-          title: 'Explorer',
-          url: '#',
-        },
-        {
-          title: 'Quantum',
-          url: '#',
-        },
-      ],
+      title: 'AI Chat',
+      url: '/chats',
+      icon: MessageSquare,
     },
   ],
 };

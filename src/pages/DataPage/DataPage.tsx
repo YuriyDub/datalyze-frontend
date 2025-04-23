@@ -28,7 +28,7 @@ import {
   IDatasetInfo,
 } from '@/services/api/data';
 import { Separator } from '@radix-ui/react-separator';
-import { Edit, Database, Plus, Trash2 } from 'lucide-react';
+import { Edit, Database, Plus, Trash2, CircleSlash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -155,7 +155,7 @@ export default function DataPage() {
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Home</BreadcrumbLink>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
@@ -183,6 +183,14 @@ export default function DataPage() {
               <h2 className="text-gray-400">Create New</h2>
             </CardContent>
           </Card>
+          {datasets.length === 0 && (
+            <Card className="h-full min-h-56 border-none shadow-none bg-gray-50 opacity-80">
+              <CardContent className="h-full flex justify-center items-center gap-2">
+                <CircleSlash2 color="#99a1af" />
+                <h2 className="text-gray-400">No Datasets</h2>
+              </CardContent>
+            </Card>
+          )}
 
           {datasets.map((dataset) => (
             <Card

@@ -1,4 +1,6 @@
-1001,Wireless Mouse,Electronics,29.99,true
-1002,Mechanical Keyboard,Electronics,99.99,false
-1003,Desk Lamp,Home,45.50,true
-1004,Notebook,Office,12.99,true
+id,name,email,age,is_active
+1,John Doe,john@example.com,30,true
+2,Jane Smith,jane@example.com,25,false
+3,Bob Johnson,bob@example.com,35,true
+4,Alice Williams,alice@example.com,28,true
+5,Charlie Brown,charlie@example.com,40,false
