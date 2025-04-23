@@ -15,7 +15,10 @@ interface IAuthContextType {
 const AuthContext = createContext<IAuthContextType | null>(null);
 
 const authApi = axios.create({
-  baseURL: 'http://localhost:3000/api/auth',
+  baseURL:
+    process.env.NODE_ENV === 'production'
+      ? 'http://ec2-51-20-122-41.eu-north-1.compute.amazonaws.com/api/auth'
+      : 'http://localhost:3000/api/auth',
   withCredentials: true,
 });
 
