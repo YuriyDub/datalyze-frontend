@@ -63,7 +63,7 @@ export function ChatMessage({ message, onExecuteQuery }: ChatMessageProps) {
                 {isLoading ? (
                   <LoadingSpinner className="mx-auto my-32" />
                 ) : (
-                  <div className="border rounded-md p-4">
+                  <div className="border rounded-md p-4 h-15/10">
                     <VisualizationRenderer title={message.title} data={queryResult} />
                   </div>
                 )}

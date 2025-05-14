@@ -81,7 +81,6 @@ export function VisualizationRenderer({ data, title }: VisualizationRendererProp
       return (
         <>
           <PieChart data={data} />
-          <BarChart data={data} />
         </>
       );
     case 'scatter':

@@ -34,7 +34,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-export default function ChatPage() {
+export default function ChatsPage() {
   const [chats, setChats] = useState<IChat[]>([]);
   const [datasets, setDatasets] = useState<IDatasetInfo[]>([]);
   const [isLoading, setIsLoading] = useState(false);

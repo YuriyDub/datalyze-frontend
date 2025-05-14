@@ -63,8 +63,8 @@ export function PieChart({ data, nameKey, valueKey }: PieChartProps) {
   return (
     <div className="w-full">
       <CardContent className="flex-1 pb-0">
-        <ChartContainer config={chartConfig} className="mx-auto max-h-[250px]">
-          <RechartsPieChart>
+        <ChartContainer config={chartConfig} className="mx-auto">
+          <RechartsPieChart className="flex flex-col gap-2 min-w-56 md:min-w-80">
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
             <Pie
               labelLine={false}
@@ -108,7 +108,7 @@ export function PieChart({ data, nameKey, valueKey }: PieChartProps) {
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
-            <Legend />
+            <Legend wrapperStyle={{ position: 'relative' }} />
           </RechartsPieChart>
         </ChartContainer>
       </CardContent>
