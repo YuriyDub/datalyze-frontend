@@ -18,7 +18,7 @@ const COLORS = ['#000000', '#5d5d5d', '#272727', '#a4a4a4'];
 
 const chartConfig = {
   defaults: {
-    color: '#3b82f6', // Default to blue-500
+    color: '#3b82f6',
   },
 } satisfies ChartConfig;
 

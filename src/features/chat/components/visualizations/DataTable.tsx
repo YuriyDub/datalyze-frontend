@@ -48,7 +48,6 @@ function formatCellValue(value: unknown): string {
   }
   
   if (typeof value === 'number') {
-    // Format numbers with up to 2 decimal places if they have decimals
     return Number.isInteger(value) ? value.toString() : value.toFixed(2);
   }
   

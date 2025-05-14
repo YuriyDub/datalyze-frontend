@@ -41,7 +41,6 @@ import { renameFile } from '../utils';
 
 export type DataType = 'string' | 'number' | 'boolean' | 'date';
 
-// Map frontend data types to SQLite types
 const mapDataTypeToSqliteType = (
   dataType: DataType,
 ): 'TEXT' | 'INTEGER' | 'REAL' | 'BLOB' | 'NULL' => {

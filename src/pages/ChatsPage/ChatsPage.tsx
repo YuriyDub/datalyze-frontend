@@ -98,7 +98,6 @@ export default function ChatsPage() {
       setChatTitle('');
       setSelectedDatasetId('');
 
-      // Navigate to the new chat
       navigate(`/chats/${newChat.id}`);
     } catch (error) {
       console.error('Error creating chat:', error);

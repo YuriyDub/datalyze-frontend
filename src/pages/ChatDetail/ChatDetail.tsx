@@ -64,7 +64,6 @@ export default function ChatDetail() {
   }, [id, navigate]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -73,7 +72,6 @@ export default function ChatDetail() {
 
     setIsSending(true);
     try {
-      // Optimistically add user message to the UI
       const userMessage: IChatMessage = {
         id: `temp-${Date.now()}`,
         chatId: id,
@@ -85,10 +83,8 @@ export default function ChatDetail() {
       setMessages((prev) => [...prev, userMessage]);
       setNewMessage('');
 
-      // Send message to the server
       const response = await sendMessage(id, newMessage);
 
-      // Add assistant response
       const assistantMessage: IChatMessage = {
         id: `temp-response-${Date.now()}`,
         chatId: id,

@@ -12,12 +12,10 @@ export function LineChart({ data, xAxisKey, yAxisKey }: LineChartProps) {
     return <div className="text-center p-4">No data available</div>;
   }
 
-  // Determine x and y axis keys if not provided
   const determineXAxisKey = (): string => {
     if (xAxisKey && data.columns.includes(xAxisKey)) {
       return xAxisKey;
     }
-    // Default to first column that looks like a date or category
     const dateColumn = data.columns.find(col => {
       const firstValue = String(data.rows[0][col]);
       return firstValue.includes('-') || firstValue.includes('/');
@@ -29,7 +27,6 @@ export function LineChart({ data, xAxisKey, yAxisKey }: LineChartProps) {
     if (yAxisKey && data.columns.includes(yAxisKey)) {
       return yAxisKey;
     }
-    // Default to first numeric column
     const firstNumericColumn = data.columns.find(col => {
       const firstValue = data.rows[0][col];
       return typeof firstValue === 'number' || !isNaN(Number(firstValue));
@@ -40,10 +37,8 @@ export function LineChart({ data, xAxisKey, yAxisKey }: LineChartProps) {
   const xAxis = determineXAxisKey();
   const yAxis = determineYAxisKey();
 
-  // Format data for Recharts
   const chartData = data.rows.map(row => {
     const formattedRow: Record<string, unknown> = { ...row };
-    // Ensure numeric values for the y-axis
     if (typeof formattedRow[yAxis] === 'string') {
       formattedRow[yAxis] = Number(formattedRow[yAxis]);
     }

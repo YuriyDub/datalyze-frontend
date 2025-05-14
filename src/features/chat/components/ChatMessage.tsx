@@ -43,13 +43,11 @@ export function ChatMessage({ message, onExecuteQuery }: ChatMessageProps) {
       return <div className="prose dark:prose-invert max-w-none">{message.content}</div>;
     }
 
-    // Split content into parts (text and code blocks)
     const parts = message.content
       .split(/```[\s\S]*?```/)
       .map((part) => part.trim())
       .filter((part) => part);
 
-    // Extract pure SQL queries from code blocks
     const queries = [...message.content.matchAll(/```(?:.*?sql)?\s*\n?([\s\S]*?)```/g)].map(
       (match) => match[1].trim(),
     );

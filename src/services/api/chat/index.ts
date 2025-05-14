@@ -86,7 +86,6 @@ export const {
   useDeleteChatMutation,
 } = chatApi;
 
-// Non-RTK Query functions for more direct usage
 export const getChats = async (): Promise<IChat[]> => {
   try {
     const response = await api.get('/chats');
