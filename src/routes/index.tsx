@@ -23,13 +23,11 @@ export const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Route>
 
-        {/* Private Routes */}
         <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}>
           <Route path="/" element={<Home />} />
           <Route path="/your-data" element={<DataPage />} />
@@ -37,7 +35,6 @@ export const AppRoutes = () => {
           <Route path="/chats/:id" element={<ChatDetail />} />
         </Route>
 
-        {/* Fallback Route */}
         <Route path="*" element={<h1>404 Not Found</h1>} />
       </Routes>
     </BrowserRouter>

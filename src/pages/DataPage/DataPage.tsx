@@ -235,7 +235,6 @@ export default function DataPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -261,7 +260,6 @@ export default function DataPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Rename Dialog */}
       <Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
         <DialogContent>
           <DialogHeader>

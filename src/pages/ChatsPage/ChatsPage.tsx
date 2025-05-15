@@ -228,7 +228,6 @@ export default function ChatsPage() {
         </div>
       )}
 
-      {/* Create Chat Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -275,7 +274,6 @@ export default function ChatsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
